@@ -73,6 +73,8 @@ public class DetectMarkersActivity extends CameraActivity {
                 }
 
                 return rgb;
+
+
             }
         });
 

@@ -178,21 +178,12 @@ public class CaliberationActivity extends AppCompatActivity implements ImageRead
 
 
 
+
+
         postInferenceCallback.run();
     }
 
-    private void saveMatToStorage(Mat mat, String fileName) {
-        Bitmap bmp = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mat, bmp);
 
-        try {
-            FileOutputStream out = new FileOutputStream(getExternalFilesDir(null) + "/" + fileName);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     protected void fillBytes(final Image.Plane[] planes, final byte[][] yuvBytes) {
         // Because of the variable row stride it's not possible to know in
