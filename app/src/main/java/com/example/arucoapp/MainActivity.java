@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         caliberateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this, CaliberationActivity.class);
+                Intent intent=new Intent(MainActivity.this, CaptureImageActivity.class);
 
                 startActivity(intent);
 

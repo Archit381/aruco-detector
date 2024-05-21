@@ -9,6 +9,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
@@ -16,6 +17,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
 
 public class DetectMarkersActivity extends CameraActivity {
 
@@ -71,7 +73,6 @@ public class DetectMarkersActivity extends CameraActivity {
                 }
 
                 return rgb;
-
 
             }
         });
