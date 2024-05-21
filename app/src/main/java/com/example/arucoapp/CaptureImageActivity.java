@@ -2,6 +2,7 @@ package com.example.arucoapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -198,8 +199,33 @@ public class CaptureImageActivity extends CameraActivity {
 
             Log.i("RESULT 1", "Camera Matrix: \n" + cameraMatrix.dump());
             Log.i("RESULT 2", "Distortion Coefficients: \n" + distCoeffs.dump());
+
+            saveCalibrationData(cameraMatrix, distCoeffs);
+
         }
 
+    }
+
+    public void saveCalibrationData(Mat cameraMatrix, Mat distCoeffs){
+        SharedPreferences sharedPreferences = getSharedPreferences("calibration_data", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("camera_matrix", matToString(cameraMatrix));
+        editor.putString("dist_coeffs", matToString(distCoeffs));
+        editor.apply();
+    }
+
+    private String matToString(Mat mat) {
+        int rows = mat.rows();
+        int cols = mat.cols();
+        int type = mat.type();
+        StringBuilder sb = new StringBuilder();
+        sb.append(rows).append(",").append(cols).append(",").append(type).append(",");
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                sb.append(mat.get(i, j)[0]).append(",");
+            }
+        }
+        return sb.toString();
     }
 
     public List<Mat> loadCalibrationImages() {
