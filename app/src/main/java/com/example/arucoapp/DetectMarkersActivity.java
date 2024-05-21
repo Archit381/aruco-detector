@@ -11,6 +11,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgproc.Imgproc;
@@ -56,7 +57,7 @@ public class DetectMarkersActivity extends CameraActivity {
 
                 Imgproc.cvtColor(inputFrame.rgba(), rgb, Imgproc.COLOR_RGBA2RGB);
 
-//                Core.rotate(rgb, rgb, Core.ROTATE_90_CLOCKWISE);
+                Core.rotate(rgb, rgb, Core.ROTATE_90_CLOCKWISE);
 
                 gray = inputFrame.gray();
                 ids = new MatOfInt();
@@ -70,9 +71,6 @@ public class DetectMarkersActivity extends CameraActivity {
                     int id = ids.toArray()[0];
                     Log.d("Marker ID", String.valueOf(id));
                 }
-
-
-
 
                 return rgb;
             }
