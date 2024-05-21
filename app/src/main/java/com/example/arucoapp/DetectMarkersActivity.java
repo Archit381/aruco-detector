@@ -1,10 +1,8 @@
 package com.example.arucoapp;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
-
 import org.opencv.android.CameraActivity;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
@@ -15,8 +13,6 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgproc.Imgproc;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,14 +53,16 @@ public class DetectMarkersActivity extends CameraActivity {
 
                 Imgproc.cvtColor(inputFrame.rgba(), rgb, Imgproc.COLOR_RGBA2RGB);
 
-                Core.rotate(rgb, rgb, Core.ROTATE_90_CLOCKWISE);
 
                 gray = inputFrame.gray();
+
+                Core.rotate(gray, gray, Core.ROTATE_90_CLOCKWISE);
+                Core.rotate(rgb,rgb, Core.ROTATE_90_CLOCKWISE);
+
                 ids = new MatOfInt();
                 corners.clear();
 
                 Aruco.detectMarkers(gray, dictionary, corners, ids, parameters);
-
                 if (ids.total() > 0) {
                     Aruco.drawDetectedMarkers(rgb, corners, ids);
 
@@ -82,6 +80,7 @@ public class DetectMarkersActivity extends CameraActivity {
             cameraBridgeViewBase.enableView();
         }
     }
+
 
     @Override
     protected List<? extends CameraBridgeViewBase> getCameraViewList() {
