@@ -39,7 +39,7 @@ public class DetectMarkersActivity extends CameraActivity {
     private Mat rvecs;
     private Mat tvecs;
 
-    public static final float SIZE = 0.04f;
+    public static final float SIZE = 0.004f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,22 +85,15 @@ public class DetectMarkersActivity extends CameraActivity {
                     Aruco.estimatePoseSingleMarkers(corners, SIZE,cameraMatrix,distCoeffs,rvecs,tvecs);
 
                     for(int i=0;i<ids.toArray().length;i++){
+                        Mat rvec = rvecs.row(i);
+                        Mat tvec = tvecs.row(i);
 
-                        Aruco.drawAxis(rgb, cameraMatrix, distCoeffs, rvecs.row(i), tvecs.row(i), SIZE/2.0f);
+                        Aruco.drawAxis(rgb, cameraMatrix, distCoeffs, rvecs.row(i), tvecs.row(i), SIZE/0.01f);
+
+                        calculateAngle(rvec);
 
                     }
-
-
                 }
-
-//                if (ids.total() > 0) {
-//                    Aruco.drawDetectedMarkers(rgb, corners, ids);
-//
-//                    int id = ids.toArray()[0];
-//                    Log.d("Marker ID", String.valueOf(id));
-//
-//
-//                }
 
                 return rgb;
 
@@ -113,8 +106,41 @@ public class DetectMarkersActivity extends CameraActivity {
 
         loadCalibrationData();
 
-        Log.i("RESULT 1", "Camera Matrix: \n" + cameraMatrix.dump());
-        Log.i("RESULT 2", "Distortion Coefficients: \n" + distCoeffs.dump());
+//        Log.i("RESULT 1", "Camera Matrix: \n" + cameraMatrix.dump());
+//        Log.i("RESULT 2", "Distortion Coefficients: \n" + distCoeffs.dump());
+    }
+
+    public void calculateAngle(Mat rvec) {
+        Mat rotationMatrix = new Mat();
+        Calib3d.Rodrigues(rvec, rotationMatrix);
+
+        double[] angles = rotationMatrixToEulerAngles(rotationMatrix);
+
+        double roll = Math.toDegrees(angles[0]);
+        double pitch = Math.toDegrees(angles[1]);
+        double yaw = Math.toDegrees(angles[2]);
+
+        Log.d("Angles", "Roll: " + roll + ", Pitch: " + pitch + ", Yaw: " + yaw);
+    }
+
+    public double[] rotationMatrixToEulerAngles(Mat R) {
+        double[] euler = new double[3];
+
+        double sy = Math.sqrt(R.get(0,0)[0] * R.get(0,0)[0] + R.get(1,0)[0] * R.get(1,0)[0]);
+
+        boolean singular = sy < 1e-6;
+
+        if (!singular) {
+            euler[0] = Math.atan2(R.get(2,1)[0], R.get(2,2)[0]);
+            euler[1] = Math.atan2(-R.get(2,0)[0], sy);
+            euler[2] = Math.atan2(R.get(1,0)[0], R.get(0,0)[0]);
+        } else {
+            euler[0] = Math.atan2(-R.get(1,2)[0], R.get(1,1)[0]);
+            euler[1] = Math.atan2(-R.get(2,0)[0], sy);
+            euler[2] = 0;
+        }
+
+        return euler;
     }
 
     private void loadCalibrationData() {
