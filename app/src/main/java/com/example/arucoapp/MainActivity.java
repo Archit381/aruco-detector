@@ -15,6 +15,8 @@ public class MainActivity extends AppCompatActivity {
     Button detectBtn;
     Button caliberateBtn;
 
+    Button inferenceBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         detectBtn=findViewById(R.id.detectBtn);
         caliberateBtn=findViewById(R.id.caliberateBtn);
+        inferenceBtn=findViewById(R.id.inferenceBtn);
 
         detectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +43,15 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivity(intent);
 
+            }
+        });
+
+        inferenceBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MainActivity.this, InferenceActivity.class);
+
+                startActivity(intent);
             }
         });
 
