@@ -131,12 +131,13 @@ public class DetectMarkersActivity extends CameraActivity {
 //                cameraBridgeViewBase.disableView();
 
 //                makeInference(rgb);
-                  saveImage(gray);
+                  saveImage(rgb);
+
 
             }
         });
-
     }
+
 
 
     public void makeInference(Mat rgbFrame){
@@ -202,48 +203,6 @@ public class DetectMarkersActivity extends CameraActivity {
         return byteBuffer;
     }
 
-//    private void saveImage(Mat rgbFrame){
-//        File outputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "output");
-//
-//        if (!outputFolder.exists()) {
-//            outputFolder.mkdirs();
-//
-//            File[] files = outputFolder.listFiles();
-//
-//            int imageCount;
-//
-//            if(files==null){
-//                imageCount=0;
-//            }
-//            else{
-//                imageCount = files.length + 1;
-//            }
-//            String filename = "output_" + imageCount + ".jpg";
-//            File file = new File(outputFolder, filename);
-//
-//            Imgcodecs.imwrite(file.getAbsolutePath(), rgbFrame);
-//
-//            Toast.makeText(DetectMarkersActivity.this, "Output Generated to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-//        }else{
-//            File[] files = outputFolder.listFiles();
-//
-//            int imageCount;
-//
-//            if(files==null){
-//                imageCount=0;
-//            }
-//            else{
-//                imageCount = files.length + 1;
-//            }
-//            String filename = "image_" + imageCount + ".jpg";
-//            File file = new File(outputFolder, filename);
-//
-//            Imgcodecs.imwrite(file.getAbsolutePath(), rgbFrame);
-//
-//            Toast.makeText(DetectMarkersActivity.this, "Output Generated to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
 
     private void saveImage(Mat rgbFrame) {
         File outputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "output");
