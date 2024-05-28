@@ -128,9 +128,7 @@ public class DetectMarkersActivity extends CameraActivity {
         inferenceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                cameraBridgeViewBase.disableView();
 
-//                makeInference(rgb);
                   saveImage(rgb);
 
 
@@ -139,93 +137,22 @@ public class DetectMarkersActivity extends CameraActivity {
     }
 
 
-
-    public void makeInference(Mat rgbFrame){
-        try {
-            RookDeeplabModel model = RookDeeplabModel.newInstance(this);
-
-            Mat resizedRgb=new Mat();
-
-            ImageProcessor imageProcessor=new ImageProcessor.Builder().add(new ResizeOp(512,512, ResizeOp.ResizeMethod.BILINEAR)).build();
-
-
-            Imgproc.resize(rgbFrame, resizedRgb, new Size(512,512));
-
-            resizedRgb.convertTo(resizedRgb, CvType.CV_32F, 1.0 / 255.0);
-
-            ByteBuffer byteBuffer = convertMatToByteBuffer(resizedRgb);
-
-            // Creates inputs for reference.
-
-            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 512, 512, 3}, DataType.FLOAT32);
-            inputFeature0.loadBuffer(byteBuffer);
-
-            // Runs model inference and gets result.
-            RookDeeplabModel.Outputs outputs = model.process(inputFeature0);
-            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-            float[] outputArray = outputFeature0.getFloatArray();
-
-            Log.d("Model Output", "Output Array: " + Arrays.toString(outputArray));
-
-            if (outputArray.length >= 4) {
-                int x = (int) (outputArray[0] * rgbFrame.width());
-                int y = (int) (outputArray[1] * rgbFrame.height());
-                int width = (int) (outputArray[2] * rgbFrame.width());
-                int height = (int) (outputArray[3] * rgbFrame.height());
-
-                Log.d("BoundingBox", "x: " + x + ", y: " + y + ", width: " + width + ", height: " + height);
-
-                Imgproc.rectangle(rgbFrame, new Point(x, y), new Point(x + width, y + height), new Scalar(0, 255, 0), 2);
-                saveImage(rgbFrame);
-            }
-
-            // Releases model resources if no longer used.
-            model.close();
-        } catch (IOException e) {
-            // TODO Handle the exception
-        }
-    }
-
-    private ByteBuffer convertMatToByteBuffer(Mat mat) {
-        // Create a ByteBuffer with the appropriate size and order
-        int size = (int) (mat.total() * mat.channels());
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(size * 4);  // 4 bytes per float
-        byteBuffer.order(ByteOrder.nativeOrder());
-        // Copy the mat data to the ByteBuffer
-        for (int i = 0; i < mat.rows(); i++) {
-            for (int j = 0; j < mat.cols(); j++) {
-                for (int k = 0; k < mat.channels(); k++) {
-                    byteBuffer.putFloat((float) mat.get(i, j)[k]);
-                }
-            }
-        }
-
-        return byteBuffer;
-    }
-
-
     private void saveImage(Mat rgbFrame) {
-        File outputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "output");
+        File inputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "input");
 
         // Create the directory if it does not exist
-        if (!outputFolder.exists()) {
-            boolean mkdirsSuccess = outputFolder.mkdirs();
+        if (!inputFolder.exists()) {
+            boolean mkdirsSuccess = inputFolder.mkdirs();
             Log.d("saveImage", "Directory created: " + mkdirsSuccess);
         }
 
-        // Get the number of images in the directory
-        File[] files = outputFolder.listFiles();
-        int imageCount = (files == null) ? 0 : files.length;
+        String filename = "input_" + System.currentTimeMillis()+ ".jpg";
+        File file = new File(inputFolder, filename);
 
-        // Create the file name
-        String filename = "output_" + (imageCount + 1) + ".jpg";
-        File file = new File(outputFolder, filename);
-
-        // Save the image
         boolean success = Imgcodecs.imwrite(file.getAbsolutePath(), rgbFrame);
         if (success) {
             Log.d("saveImage", "Image saved successfully to " + file.getAbsolutePath());
-            Toast.makeText(DetectMarkersActivity.this, "Output Generated to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(DetectMarkersActivity.this, "Input Image Generated to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
         } else {
             Log.e("saveImage", "Failed to save image to " + file.getAbsolutePath());
             Toast.makeText(DetectMarkersActivity.this, "Failed to save image.", Toast.LENGTH_SHORT).show();

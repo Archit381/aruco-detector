@@ -3,6 +3,7 @@ package com.example.arucoapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import org.opencv.android.CameraActivity;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.calib3d.Calib3d;
@@ -28,6 +30,8 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -80,58 +84,58 @@ public class CaptureImageActivity extends CameraActivity {
             cameraBridgeViewBase.enableView();
         }
 
-
         File calibrationFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "calibration");
 
-
-//        if (!calibrationFolder.exists()) {
-//            calibrationFolder.mkdirs();
-//        }else{
-//            File[] files = calibrationFolder.listFiles();
-//            if (files != null) {
-//                for (File file : files) {
-//                    file.delete();
-//                }
-//            }
-//        }
+        if (!calibrationFolder.exists()) {
+            calibrationFolder.mkdirs();
+            Toast.makeText(this, "Caliberation Folder Created", Toast.LENGTH_SHORT).show();
+        }
 
         captureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                File[] files = calibrationFolder.listFiles();
-                // If there are less than 10 images, save the current image
-                if (files != null && files.length < 10) {
-                    int imageCount = files.length + 1;
-                    String filename = "image_" + imageCount + ".jpg";
-                    File file = new File(calibrationFolder, filename);
-
-                    Imgcodecs.imwrite(file.getAbsolutePath(), gray);  // changed rgb to gray
-
-                    Toast.makeText(CaptureImageActivity.this, "Image saved to " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-                } else {
-
-                    Toast.makeText(CaptureImageActivity.this, "You have captured 10 images", Toast.LENGTH_SHORT).show();
-
-                    cameraBridgeViewBase.disableView();
-                }
+                saveFrame(gray);
             }
         });
-
         caliberateBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 File[] files = calibrationFolder.listFiles();
-
-//                if (files == null || files.length < 10) {
-//                    Toast.makeText(CaptureImageActivity.this, "You have not captured 10 images", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    startCaliberation();
-//                }
                 startCaliberation();
             }
         });
 
+
+    }
+
+    private void saveFrame(Mat frame){
+        Bitmap bmp=Bitmap.createBitmap(frame.cols(),frame.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(frame,bmp);
+
+        saveBitmap(bmp);
+    }
+
+    private void saveBitmap(Bitmap bitmap) {
+        File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "calibration");
+        File[] files = directory.listFiles();
+
+        if(files.length<10){
+
+            String fileName = "image_" + System.currentTimeMillis() + ".jpg";
+            File file = new File(directory, fileName);
+
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                Toast.makeText(this, "Image saved: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if(files.length>=10){
+            Toast.makeText(CaptureImageActivity.this, "You have captured 10 images", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void startCaliberation(){

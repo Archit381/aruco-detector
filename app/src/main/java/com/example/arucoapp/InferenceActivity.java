@@ -6,6 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -66,7 +71,7 @@ public class InferenceActivity extends AppCompatActivity {
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
 
-                // Set the initial directory to the Downloads folder
+
                 Uri downloadsUri = Uri.parse(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
                 intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, downloadsUri);
 
@@ -112,7 +117,29 @@ public class InferenceActivity extends AppCompatActivity {
                     float[] outputArray=outputFeature0.getFloatArray();
                     Log.d("Output", Arrays.toString(outputArray));
 
+                    int [] outputShape=outputFeature0.getShape();
+                    Log.d("Output Shape", Arrays.toString(outputShape));
 
+                    int maskWidth = outputShape[1];
+                    int maskHeight = outputShape[2];
+                    int[][] mask = new int[maskWidth][maskHeight];
+                    for (int i = 0; i < maskWidth; i++) {
+                        for (int j = 0; j < maskHeight; j++) {
+                            mask[i][j] = (outputArray[i * maskHeight + j] > 0.5) ? 1 : 0; // Apply threshold
+                        }
+                    }
+
+                    // Resize mask to original image size
+                    Bitmap maskBitmap = Bitmap.createBitmap(maskWidth, maskHeight, Bitmap.Config.ARGB_8888);
+                    for (int i = 0; i < maskWidth; i++) {
+                        for (int j = 0; j < maskHeight; j++) {
+                            maskBitmap.setPixel(j, i, mask[i][j] == 1 ? Color.GREEN : Color.TRANSPARENT);
+                        }
+                    }
+                    Bitmap resizedMask = Bitmap.createScaledBitmap(maskBitmap, input_image.getWidth(), input_image.getHeight(), false);
+                    Bitmap outputBitmap = overlayMask(input_image, resizedMask);
+
+                    image.setImageBitmap(outputBitmap);
 
                     // Releases model resources if no longer used.
                     model.close();
@@ -122,6 +149,16 @@ public class InferenceActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private Bitmap overlayMask(Bitmap original, Bitmap mask) {
+        Bitmap result = Bitmap.createBitmap(original.getWidth(), original.getHeight(), original.getConfig());
+        Canvas canvas = new Canvas(result);
+        Paint paint = new Paint();
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
+        canvas.drawBitmap(original, 0, 0, null);
+        canvas.drawBitmap(mask, 0, 0, paint);
+        return result;
     }
 
     @Override
