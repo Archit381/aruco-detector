@@ -81,6 +81,12 @@ public class DetectMarkersActivity extends CameraActivity {
         yawValue=findViewById(R.id.yaw);
         pitchValue=findViewById(R.id.pitch);
 
+        File inputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "input");
+        if (!inputFolder.exists()) {
+            boolean mkdirsSuccess = inputFolder.mkdirs();
+            Toast.makeText(this, "Input Folder created in Downloads", Toast.LENGTH_SHORT).show();
+        }
+
         cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
             @Override
             public void onCameraViewStarted(int width, int height) {
@@ -147,23 +153,29 @@ public class DetectMarkersActivity extends CameraActivity {
 
             }
         });
-
-
     }
-
     public boolean checkFrameStatus() {
         boolean frameStatus = false;
         boolean rollStatus = false;
         boolean yawStatus = false;
         boolean pitchStatus = false;
 
-        if ((roll >= 151.0 && roll <= 157.0) || (roll >= -174.0 && roll <= -166.0)) {
+//        if ((roll >= 151.0 && roll <= 157.0) || (roll >= -174.0 && roll <= -166.0)) {
+//            rollStatus = true;
+//        }
+//        if (yaw >= -94.0 && yaw <= -87.0) {
+//            yawStatus = true;
+//        }
+//        if ((pitch >= 10.0 && pitch <= 16.0) || (pitch >= -32.0 && pitch <= -22.0)) {
+//            pitchStatus = true;
+//        }
+        if (roll >= -170.0 && roll <= -166.0) {
             rollStatus = true;
         }
-        if (yaw >= -94.0 && yaw <= -87.0) {
+        if (yaw >= -92.0 && yaw <= -88.0) {
             yawStatus = true;
         }
-        if ((pitch >= 10.0 && pitch <= 16.0) || (pitch >= -32.0 && pitch <= -22.0)) {
+        if (pitch >= -26.0 && pitch <= -22.0) {
             pitchStatus = true;
         }
 
@@ -178,12 +190,6 @@ public class DetectMarkersActivity extends CameraActivity {
 
     private void saveImage(Mat rgbFrame) {
         File inputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "input");
-
-        // Create the directory if it does not exist
-        if (!inputFolder.exists()) {
-            boolean mkdirsSuccess = inputFolder.mkdirs();
-            Log.d("saveImage", "Directory created: " + mkdirsSuccess);
-        }
 
         String filename = "input_" + System.currentTimeMillis()+ ".jpg";
         File file = new File(inputFolder, filename);
@@ -216,6 +222,11 @@ public class DetectMarkersActivity extends CameraActivity {
                  pitchValue.setText("Pitch: "+Double.toString(pitch));
                  yawValue.setText("Yaw: "+Double.toString(yaw));
                  frameStatusValue.setText("Frame Status: "+frameStatus);
+
+                 if(frameStatus==true){
+                     saveImage(rgb);
+                 }
+
 
              }
          });
