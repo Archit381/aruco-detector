@@ -10,19 +10,73 @@
     <org.opencv.android.JavaCameraView
         android:id="@+id/cameraView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <Button
-        android:id="@+id/inferenceBtn"
-        android:text="Inference"
+        android:id="@+id/captureBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Capture Frame"
         app:layout_constraintBottom_toBottomOf="@+id/cameraView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.871" />
+        app:layout_constraintVertical_bias="0.947" />
+
+    <TextView
+        android:id="@+id/frameStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Frame Status: "
+        android:textColor="#DBD3D3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.828"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.036" />
+
+    <TextView
+        android:id="@+id/roll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Roll: "
+        android:textColor="#DBD3D3"
+        app:layout_constraintBottom_toBottomOf="@+id/cameraView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.078"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.766" />
+
+    <TextView
+        android:id="@+id/pitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pitch: "
+        android:textColor="#DBD3D3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.08"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yaw"
+        app:layout_constraintVertical_bias="0.076" />
+
+    <TextView
+        android:id="@+id/yaw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yaw: "
+        android:textColor="#DBD3D3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/roll"
+        app:layout_constraintVertical_bias="0.074" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

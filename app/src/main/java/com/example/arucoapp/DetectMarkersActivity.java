@@ -1,11 +1,13 @@
 package com.example.arucoapp;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.example.arucoapp.ml.RookDeeplabModel;
 import org.opencv.android.CameraActivity;
@@ -28,6 +30,8 @@ import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -54,7 +58,13 @@ public class DetectMarkersActivity extends CameraActivity {
     private Mat rvecs;
     private Mat tvecs;
 
-    Button inferenceBtn;
+    double roll, pitch, yaw;
+
+    Button captureBtn;
+    TextView frameStatusValue;
+    TextView rollValue;
+    TextView yawValue;
+    TextView pitchValue;
 
     public static final float SIZE = 0.004f;
 
@@ -64,7 +74,12 @@ public class DetectMarkersActivity extends CameraActivity {
         setContentView(R.layout.activity_detect_markers);
 
         cameraBridgeViewBase=findViewById(R.id.cameraView);
-        inferenceBtn=findViewById(R.id.inferenceBtn);
+        captureBtn=findViewById(R.id.captureBtn);
+
+        frameStatusValue=findViewById(R.id.frameStatus);
+        rollValue=findViewById(R.id.roll);
+        yawValue=findViewById(R.id.yaw);
+        pitchValue=findViewById(R.id.pitch);
 
         cameraBridgeViewBase.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
             @Override
@@ -125,16 +140,40 @@ public class DetectMarkersActivity extends CameraActivity {
 
         loadCalibrationData();
 
-        inferenceBtn.setOnClickListener(new View.OnClickListener() {
+        captureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                   saveImage(rgb);
-
 
             }
         });
+
+
     }
+
+    public boolean checkFrameStatus() {
+        boolean frameStatus = false;
+        boolean rollStatus = false;
+        boolean yawStatus = false;
+        boolean pitchStatus = false;
+
+        if ((roll >= 151.0 && roll <= 157.0) || (roll >= -174.0 && roll <= -166.0)) {
+            rollStatus = true;
+        }
+        if (yaw >= -94.0 && yaw <= -87.0) {
+            yawStatus = true;
+        }
+        if ((pitch >= 10.0 && pitch <= 16.0) || (pitch >= -32.0 && pitch <= -22.0)) {
+            pitchStatus = true;
+        }
+
+        if (rollStatus && yawStatus && pitchStatus) {
+            frameStatus = true;
+        }
+
+        return frameStatus;
+    }
+
 
 
     private void saveImage(Mat rgbFrame) {
@@ -165,11 +204,24 @@ public class DetectMarkersActivity extends CameraActivity {
 
         double[] angles = rotationMatrixToEulerAngles(rotationMatrix);
 
-        double roll = Math.toDegrees(angles[0]);
-        double pitch = Math.toDegrees(angles[1]);
-        double yaw = Math.toDegrees(angles[2]);
+         roll = Math.toDegrees(angles[0]);
+         pitch = Math.toDegrees(angles[1]);
+         yaw = Math.toDegrees(angles[2]);
+         boolean frameStatus=checkFrameStatus();
 
-        Log.d("Angles", "Roll: " + roll + ", Pitch: " + pitch + ", Yaw: " + yaw);
+         runOnUiThread(new Runnable() {
+             @Override
+             public void run() {
+                 rollValue.setText("Roll: "+Double.toString(roll));
+                 pitchValue.setText("Pitch: "+Double.toString(pitch));
+                 yawValue.setText("Yaw: "+Double.toString(yaw));
+                 frameStatusValue.setText("Frame Status: "+frameStatus);
+
+             }
+         });
+
+        Log.d("Values", "Roll: " + roll + ", Pitch: " + pitch + ", Yaw: " + yaw);
+        Log.d("Angles","Angle: "+ Arrays.toString(angles));
     }
 
     public double[] rotationMatrixToEulerAngles(Mat R) {
