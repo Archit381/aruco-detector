@@ -3,11 +3,14 @@ package com.example.arucoapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.Manifest;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -28,20 +31,32 @@ public class MainActivity extends AppCompatActivity {
         caliberateBtn=findViewById(R.id.caliberateBtn);
         inferenceBtn=findViewById(R.id.inferenceBtn);
 
+        SharedPreferences sharedPreferences = getSharedPreferences("calibration_data", MODE_PRIVATE);
+        boolean res=isCalibrationDataAvailable(sharedPreferences);
+
+        Log.d("Result",res+"");
+
         detectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this, DetectMarkersActivity.class);
-                startActivity(intent);
+
+                if(res){
+                    Intent intent=new Intent(MainActivity.this, DetectMarkersActivity.class);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Complete Camera Caliberation First", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
         caliberateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this, CaptureImageActivity.class);
 
-                startActivity(intent);
+                    Intent intent=new Intent(MainActivity.this, CaptureImageActivity.class);
+                    startActivity(intent);
 
             }
         });
@@ -49,13 +64,24 @@ public class MainActivity extends AppCompatActivity {
         inferenceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this, InferenceActivity.class);
 
-                startActivity(intent);
+                if(res){
+                    Intent intent=new Intent(MainActivity.this, InferenceActivity.class);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Complete Camera Caliberation First", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
 
+    }
+
+    public static boolean isCalibrationDataAvailable(SharedPreferences sharedPreferences) {
+        String cameraMatrixStr = sharedPreferences.getString("camera_matrix", "");
+        String distCoeffsStr = sharedPreferences.getString("dist_coeffs", "");
+        return !cameraMatrixStr.isEmpty() && !distCoeffsStr.isEmpty();
     }
 
     void getPermission(){

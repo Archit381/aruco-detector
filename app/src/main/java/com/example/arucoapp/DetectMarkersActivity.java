@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.arucoapp.ml.RookDeeplabModel;
 import org.opencv.android.CameraActivity;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
@@ -185,8 +184,6 @@ public class DetectMarkersActivity extends CameraActivity {
 
         return frameStatus;
     }
-
-
 
     private void saveImage(Mat rgbFrame) {
         File inputFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "input");
